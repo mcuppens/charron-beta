@@ -1,0 +1,707 @@
+######################################################
+## CHARRON ONLINE SOARING CONTEST SCORING
+## Developed for the Liga Van Vlaamse zweefvliegclubs
+## 
+## Author Luc Beerts (info@lbs.be) 
+## Copyright(c) 2003-2020 Luc Beerts
+######################################################
+
+=================================================
+===           SCORE CHANGE LOG                ===
+=================================================
+
+Future release:
+---------------
+* Do not delete bad fixes, but mark them as such. Do not use them for distance
+  analysis, but use them for altitude gain.
+
+
+SCORE XX.XX XX
+-----------
+* Reduce number of fixes to a maximum number. The default maximum number = 20000
+  Fixes near declared turnpoint (< 3 km) will not be deleted. 
+  Because of this the resulting number of fixes may be different from the
+  set maximum.
+* New output message 155: "Number of fixes reduced"
+* The -dflt command line parameter will show details on the deleted fixes
+* New command line parameter fixm: Limits the number of fixes
+  in any soaring block to the given number, with a minimum of 15000
+
+SCORE 24.02 12/06/2024
+-----------
+* Check IGC file for invalid characters / bad line coding
+* new error code 129: Invalid character or line length in IGC file
+* new error code 134: Found declaration line in invalid place
+* New parameter -digc: provide debug output for IGC file input
+
+
+SCORE 24.01 23/04/2024
+-----------
+* Corrected task declaration after start of flight issue
+
+
+
+SCORE 20.02 29/07/2020
+-----------
+* New file stretches.txt: defines stretches for the runs evalulation
+* New command line parameters:
+  -nruns  : disables runs (stretch) evaluation
+  -druns  : Provide debug info for runs algorithm
+
+
+
+SCORE 20.02 29/07/2020
+-----------
+* Triangle calculation: check if flight is closed within a given distance 
+* New command line parameter: -tricdX.x: specifies the closing distance (km).
+  -tricd0 will disable closed loop checking
+  Parameter not included: enable close loop, using dist = 1 km.
+* New message #200: "Triangle: no closed segment found"
+
+
+SCORE 20.01 26/02/2020
+-----------
+* Bug correction: Path was not included in some plot file names
+* Extebded debug info for plotting
+
+
+SCORE 19.03 24/10/2019
+-----------
+* Bug correction: Path was not included in some plot file names
+
+
+SCORE 19.02 20/09/2019
+-----------
+* Bug correction: included conditin for very short flights
+
+
+SCORE 19.01 17/09/2019
+-----------
+* Added triangle calculation
+* New command line parameter -ntri: do not calculate triangle
+* New command line parameter -tribf[stepsize]: Also use brute force, to verify optimised algo
+    SetepSize: optional, sets step size in number of fixes.
+* New command line parameter -tribfssXXX: Also use brute force, to verify optimised algo
+    XXX: sets step size in seconds.
+* New command line parameter -tribfmnsXXX: Also use brute force, to verify optimised algo
+    XXX: set the maximum number of steps, to avoid axcessive run time. Step size will be increased
+	if required, to obtain given number of steps.
+* New command line parameter -dtri:  debug triangle
+* New fields in the dat file:
+  - Line 43 - 45: triangle legs
+  - Line 46     : Triangle total dsiatnce
+  - Line 47     : Triangle brute force total dist (debugging)
+* New command line parameters latmax, latmin, lonmax, lonmin
+    Allow to fix an area for the plot output.
+	Use degress.decimal degrees
+	All parameters must be specified.
+* Day file class rewritten in order to accomodate other types of plots
+* new command line parameter:
+  -plot:rgn:name
+  Will produce combined plots with the given name for the given region
+  Name: if containing blanks:can use quotes or underscores:
+  -plot:rgn:"Peeters Jan"  -> Must be tested on Linux !!
+  -plot:rgn:Peeters_Jan
+  Regions:
+    BNL
+	FRA
+	EUR
+	MOR:    Morocco
+	SAF:    S Africa
+	USA
+	AUS:    Australia & N Zealand
+  Multiple instances of -plot commands are allowed
+* New command line parameter -dplot: provides debug info for the plots
+* Comment out command line parameters via # after the '-' character.
+  Example: -#plot:xx:xx -> the command is commented out
+* Compatibility with new IGC file specifications:
+  - HDTE
+  - HDTM
+
+  
+SCORE 18.05 17/08/2018
+-----------
+* Corrected bug in fix detection from given time: could result in
+  array boundary exceedance / segmentation fault.
+* Corrected bug: release condition not correctly set in case of
+  manual soaring time evaluation.
+* Improved validity checking of command line arguments.
+* Changed name and format of airfields database
+  * New name: airfields_icao.txt
+  * Number of fields line removed
+  * -onbekend- line removed
+  * Header line included
+  * Fields separated by tabs instead of :
+  * Field sequence altered: icao, name, lat, lon, level, BNL
+  * Liga short name field removed
+  * Airfield level legend at end removed
+  This allows easier editing via Excel. Export file to text, tab separated.
+
+
+SCORE 18.04 25/07/2018
+-----------
+* Corrected bug in declared task: MaxLandingFinish compared to wrong fix
+
+
+SCORE 18.03 22/04/2018
+-----------
+* Corrected bug in fasttrack calculation: First fix set wrong
+* Included EBSL in de airfields database
+
+
+SCORE 18.02 07/04/2018
+-----------
+* Corrected bug in fasttrack calculation: was not restricted to single soaring block
+
+
+SCORE 18.01 04/12/2017
+-----------
+* Non IGC certified loggers will now pass the scoring.
+  Message "120  Logger type niet bekend: XXX" will be generated, but
+  scoring will not be halted.
+* adapted color scheme in graphic output.
+
+
+SCORE 17.05 15/06/2017
+-----------
+* Corrected bug: declared task start-altitude was not re-initialized ico
+  beercan evaluation.
+
+
+SCORE 17.04 31/05/2017
+-----------
+Added support for MOP
+* Read MOP from IGC file
+* New command line parameter -moponly. If set, analyses only flights with
+  MOP detection.
+* New command line parameter -nomop. If set: does not use MOP value.
+* Display MOP on baro graph in light yellow
+* "COMB", = max of ENL & MOP at each point
+* For engine detection, use filtered COMB. Filter time constant depends
+  on type of detection:                    
+  ENL only,
+  MOP only = ENL only / 3,
+  ENL & MOP = ENL only / 2
+  From then on, algorithm is the same.
+* Added MOP sensor type in txt output, if MOP sensor is installed. 
+* Corrected bug in start altitude calculation of Declared Task.
+* Check of number of turnpoints for declared task < 200 km included.
+* New command line parameter -ndtime: will skip check of task declaration time
+
+
+SCORE 17.03 07/04/2017
+-----------
+* Corrected bug in start altitude calculation of Free Flight.
+
+
+SCORE 17.02 25/02/2017
+-----------
+* Adapted for non-standard formatting of GPS datum header string.
+* New error code 128 "GPS datum format not standard"
+* Changed minimum Charronde angle for plotting on map to 150°
+* Modified colors on baro to be consistent with colors on flight plot.
+* Changed abbreviations on baro and plot to Dutch.
+
+
+SCORE 17.01 02/12/2016
+-----------
+* Algorithm rewritten:
+  - Converted to cpp
+  - New structure
+  - New FF Algorithm
+  - Altimeter checked for erratic altitude fixes
+* New fields in the dat file:
+  - Version (name) of the scoring algorithm used
+    will also be written ico critical error.
+  - IGC name (can be blank if file could not be read or some other errors)
+  - Release time
+  - Charronde angle.  Can be negative, can be > 360.
+  - Optionally: up to 10 strings containing debugging info at the end
+  See "README" for a full description of the dat file.
+* Moved field IGC file name to the second line.
+  If the file could not be read or in case of some other errors this field will
+  contain the input file name.
+* New command line parameters
+  -nograph  : suppresses generation of graphs
+  -ddmld<xx>: Free flight minimum leg distance (0->50)
+  -dtmld<xx>: Declared task minimum leg distance (0->50)
+  -nft      : Do not perform FastTrack scoring ( replacing obsolete -s)
+  -nbru     : Do not perform Charronde scoring
+  -dflt     : debug flight detection algorithm
+  -dalt     : debug altitude & altitude gain algorithm
+  -dbru     : debug Charronde algorithm
+  -pause    : request a key press to close the console after execution
+  -ec<:FN>  : replaces -ie. Write list of error codes to file "FN", then stops.
+              If no file name given: writes to stdout.
+ * Command line parameter -s replaced by -nft
+ * Command line parameter -nknicksm replaced by -nknicks.  The actual number of
+   knicks will be about 3x higheer as the given value
+
+  
+SCORE 16.01 14/09/2016
+-----------
+* Detection of turnpoint sectors that have no fix inside the sector, but where
+  a line between two fixes runs through the sector.
+* Optimisation of start and finish points for maximum distance.
+  Height loss calculated as difference between the minimum altitude between start
+  soaring block and start point and maximum height between finish and end of
+  soaring block.
+* Text file adapted to the new scoring method.
+* Added switch -dtimeXX : include a delay of XX seconds, in order to test server behavior
+  in case of long execution times.
+* Added switch -dttotXX : set the execution time to a minimum of the given time XX (seconds).
+  If the execution time is shortre, a waiting time is added to obtain the minimum time.
+* Added switch -etmaxXXX : set the value of the maximum ENL threshold
+
+
+SCORE 15.05 06/09/2016
+-----------
+* Added non-IGC FLARM to logger list (XFL)
+
+
+SCORE 15.04 23/05/2015
+-----------
+* Taken into account flight dates before 1/1/2000 
+
+
+SCORE 15.03 28/04/2015
+-----------
+* Corrected bug in start line detection
+
+
+SCORE 15.02 08/04/2015
+-----------
+* Added switch -noenl to force analysis if no ENL recorded
+
+
+SCORE 15.01 07/02/2015
+-----------
+* Reduced start line width to 1 km
+* Made start line crossing direction sensitive
+  only valid if crossed in direction of the first turnpoint
+* Set Arras as Benelux airfield
+
+
+SCORE 14.03 17/10/2014
+-----------
+* Corrected bug: if no knick points were found, drawing the plot could lead to an access violation
+
+
+SCORE 14.02 05/10/2014
+-----------
+* Corrected bug while using manual engine noise level command line parameters
+
+
+SCORE 14.01 28/05/2014
+-----------
+* Added new logger types
+
+
+SCORE 13.06 10/08/2013
+-----------
+* Worked around a problem drawing the title of plots via dislin
+
+
+SCORE 13.05 10/04/2013
+-----------
+* removed bug in day plot drawing
+
+
+SCORE 13.04 04/04/2013
+-----------
+* Day plot: minimum distance of plotted flights dependent upon distance of
+  biggest flight: dMin = max ( 75, min ( 150, dMax / 3 ) )
+
+
+SCORE 13.03 04/03/2013
+-----------
+* Bugfix.
+
+
+SCORE 13.02 28/02/2013
+-----------
+* Corrected bug: heap not cleaned after removing plot files.
+* Mutexed generation of day plot.  Using simple locked file mechanism:
+  First process generates file Mutex_Day_yyymmdd, removes file when done.
+  If this file exists, next process waits until file is removed.
+  If still waiting after 10 seconds, next process will continue anyhow, and
+  will try to remove the file.
+* Added new debug option -ddl: will provide debug output for the dislin picture
+  generation functions.
+
+
+SCORE 13.01 24/01/2013
+-----------
+* Added fields to the dat file:
+  - Take-off point latitude co-ordinate
+  - Take-off point longitude co-ordinate
+  - Landing point latitude co-ordinate
+  - Landing point longitude co-ordinate
+  - Distance take-off to landing point
+* Creates file Day_yyyymmdd, where yyyy is the year, mm the month and dd is the
+  day of the flight.
+  - The file contains all flights of a single competition day
+    in floating point radians Lat;Long.  The fights are separated by 0;0
+    co-ordinates.  Upon every run of the algorithm, the flight is added.
+    If the algorithm is ran several times on the same flight, the flight will be
+    inserted multiple times, as well.
+  - To reduce the file size, minimal fix distance is set at 2 km. 
+  - Flights will be included only if:
+    - Departure within Benelux
+    - Free flight scoring distance of at least 150 km.
+* From the file above, the graph day_yyymmdd.png is generated.  The graph is
+  generated again upon every instance, so it will be updated for every flight.
+
+
+SCORE 12.01 26/04/2012
+-----------
+* Removed distance checking of turnpoints to each other.
+* Improved flight declaration ico goal flight without any turnpoints.
+
+
+SCORE 11.03 26/06/2011
+-----------
+* Removed distance checking of turnpoints versus start and finish points.
+
+
+SCORE 11.02 04/06/2011
+-----------
+* Corrected bug: if logger fix exactly over the start or finish point, the line
+  crossing was missed.
+* Included distance checking of turnpoints versus start and finish points.
+
+
+SCORE 11.01 09/05/2011
+-----------
+* Included LXNAV ex Filser & own logger types.
+* Avoid exception in release detection, due to discontinuity in
+  altitude values during take-off.
+
+
+SCORE 10.03 XX/XX/XXXX
+-----------
+* Improved bad fix detection: increased positive time jump detection threshold.
+* Task declaration check: included distance check for first and last turnpoints
+  as well.
+
+
+SCORE 10.02 10/05/2010
+-----------
+* Mistakenly included new declared task analysis "under construction" in 10.01,
+  compiled with previous declared task analysis.
+
+
+SCORE 10.01 07/05/2010
+-----------
+* Added IMI logger
+* Added NKL logger  !!!  No single letter code available  !!!
+* Added to functionality of st switch: also excluded landing detection.
+
+
+SCORE 09.03 03/08/2009
+-----------
+* New algorithm version numbering: yy.nn.  yy = year, nn = sequence number of
+  the release in that specific year.
+* New treatment of bad GPS fixes: all fixes not marked as 3D are discarded.
+  Too many exceptions occured due to taking into consideration non-3D fixes.
+* Corrected bug in flight initialisation: in some cases, bad GPS fixes were
+  not skipped for take-off detection. - OBSOLETE: see above
+* New command line parameters:
+  * -drel  : provide debug info for release detection algorithm
+  * -deng  : provide debug info for engine detection algorithm
+  * -dff   : provide debug info for free flight scoring algorithm
+  * -ddt   : provide debug info for declared task scoring algorithm
+  * -rm<hh:mm:ss> : (no space) Set release point manually at the fix at or
+             just after the given time.
+* Command line parameter -df modified: -df no longer selects debug, but only
+  pipes the selected debug output to a file.
+
+
+SCORE 0.6.4  16/02/2009
+-----------
+* Removed bug in declared task analysis, related to engine test run.
+* Decreased default minimum ENL for engine detection from 500 to 400.
+  Some glider / logger combinations generate less than 500 with engine running.
+* Introduced "maximum number of Knicks" value to keep processing time
+  of free-flight analysis within acceptable limits.
+* Added new command line parameter -nknicksmxx, where xx is the maximum
+  number of knicks.  Reducing the value will decrease processing time, but
+  will also decrease the quality of the result.
+  Current default value: 90.
+  Minimum value: 50
+  Maximum value: 999
+
+
+SCORE 0.6.3  04/02/2009
+-----------
+* Improved removal of bad fixes at start of logger: if logger is started at
+  another location as the one it was shut down, bad fixes of the previous
+  location may be included.
+  Find the start point / airfield with the first good fix.
+* Declared Task: start line: width 2 km iso 1 km.
+  Finish line width is kept at 1 km.
+* Declared Task: start height is the lowest altituted between the start of
+  the soaring block and the start line crossing.
+* DT / FF: 1 extra turnpoint allowed if total distance ( not scoring distance )
+  is equal to or greater than 200 km.
+* No command line parameters:
+  -nff :  do not perform free flight scoring.
+  -ndt :  do not perform declared task scoring.
+* New data in dat file, see file Readme. New fields are marked with an asterisk.
+
+
+SCORE 0.6.2  01/10/2008
+-----------
+* Removed bug in free flight analysis: last leg not coorectly limited to 30 km.
+* Improved Benelux detection: Benelux detected when logger start inside borders,
+  even if not from airfield in database.
+  Now required to include
+  - "Files/Borders" directory.
+  - in that dir: required files: Belgium.txt, Netherlands.txt, Luxemburg.txt
+* New command line option -ea: automatic engine detection.
+  Is the same as -e, but avoids error messages if no ENL in logger.
+
+
+SCORE 0.6.1  18/05/2008
+-----------
+* Removed bug that appeared when logger file contains a lot of zero fixes.
+  Included code to remove all zero fixes, regardles of any conditions.
+  (start_flight.c)
+
+
+SCORE 0.5.9  30/09/2007
+-----------
+* Updated list of certified loggers.
+* Added command line option -gid:
+  If used, the missing of the GID (Glider identification, or registration)
+  header record will not generate a critical error, but only a warning
+  message (nr. 710), both in the dat file and the txt file.
+
+
+SCORE 0.5.8  01/09/2007
+-----------
+* Added check for time of flight declaration against time of start of flight.
+  This was required to skipp declared task analysis in case of the
+  use of the LX Navigation "quick task" feature.
+  
+
+SCORE 0.5.7  25/04/2007
+-----------
+* Removed bug in evaluation without test run
+* Declared task evaluation algorithm re-written:
+  Some situations caused exceptions which could not easily
+  be treated with the previous algorithm.
+  The algorithm now performs two passes:
+  - one with beercan disactivated,
+  - one with beercan activated.
+* Added command line parameter -etmin
+  This will specify the minimum ENL threshold for engine running detection.
+  The ENL threshold used in the program will be the higher of the
+  automatically detected threshold and the given threshold.
+  The minimum ENL value should follow the parameter without blank in between.
+  Example: -etmin300
+* Added command line parameter -et
+  This will specify the ENL threshold to use for engine running detection.
+  The ENL value should follow the parameter without blank in between.
+  Example: -et300
+* The output text file includes the ENL threshold used for engine detection.
+  The dat output file has not been modified.
+ 
+    
+SCORE 0.5.6  03/04/2007
+-----------
+* Set default skip_testrun = YES
+
+
+SCORE 0.5.5  12/02/2006
+-----------
+* Removed some bugs from declared task analysis, beercan scoring.
+
+
+SCORE 0.5.4  15/12/2005
+-----------
+* Added beercan turnpoint sector.
+  -> Adapted evaluate_Task in declared_task.c
+  -> Added message TM_BEERCAN_USED (708) (messages.h)
+  -> Added BeercanUsed flag in struct sTaskAnalysis (typedef.h)
+  -> Added related messages
+* Adapted code for compile on MSDEV without errors and warnings
+  -> Added switch NO_GD (in common.h) to disable the GD library and functions
+  -> In common.h added undef for max and min
+  -> Replaced some close commands by fclose
+  -> Commented out obsolete variables
+  -> Created macro IROUND (common.h)
+
+
+SCORE 0.5.3  25/08/2004
+-----------
+* Improved part of engine detection for ignoring high ENL values due to high
+  speed noise.
+
+
+SCORE 0.5.2  15/07/2004
+-----------
+* Added -st option to ignore the automatic engine detection.
+  The start and end time of the soaring phase of the flight are then imposed as
+  arguments following this option, in the format hh:mm:ss.
+  Example: -st 11:34:27 16:23:48
+
+
+SCORE 0.5.1  14/06/2004
+-----------
+* Enhanced engine detection to ignore high ENL values due to high speed noise.
+* Added -s option to call find_FastTrack function for calculating best speed
+  in given length of time.
+
+
+SCORE 0.4.9  23/05/2004
+-----------
+* Enhanced sensitivity for engine detection.
+
+
+SCORE 0.4.8  16/04/2004
+-----------
+* Added the -nd option to skip declaration check (pilot name, glider, registr.)
+  and thus avoid possible critical error when declaration is incomplete
+* Added 1 non-critical error, EC_DECLAR_INCMPL, to be used when declaration is
+  incomplete and option -nd was given
+
+
+SCORE 0.4.7  29/12/2003
+-----------
+* Changed 5 errors from non-critical to critical:
+  EC_PILOT_NAME, EC_GLIDER_TYPE, EC_GLIDER_REGN, EC_NO_ENL, EC_ENG_NO_TESTRUN
+
+
+SCORE 0.4.6  02/09/2003
+-----------
+* Added the -nt option to skip the motor testrun check
+
+
+SCORE 0.4.5  31/08/2003
+-----------
+* Improved the 'time jump' filter algorithm
+* Made ENL engine run detection more sensitive
+
+
+SCORE 0.4.4  29/08/2003
+-----------
+* Modified take-off detection to avoid cases of positive vertical speed
+  with zero horizontal speed (due to start-up of pressure sensor).
+
+
+SCORE 0.4.3  26/08/2003
+-----------
+* Added ON/OFF (EON) engine detection and output to barogram
+* Improved reading of GPS datum to circumvent format error of Cambridge
+* Reduced list of loggers to IGC approved models only
+
+
+SCORE 0.4.2  27/07/2003
+-----------
+* Removed -nh option, check on declaration of name+glider now always done,
+  except if FR type detected from IGC file is an EW logger (read_file.c)
+* Changed number of decimals in output to .dat file (measurement error
+  considerations)
+* Changed algorithm to check time jumps for deleting fixes
+* Improved reconstruction of flight recorder S/N for Cambridge
+
+
+SCORE 0.4.1  21/07/2003
+-----------
+* Added barogram graphical output using the GD library of Boutell (write_baro.c)
+* Replaced delete_groundrun() by find_flight() in start_flight.c
+* Separated critical and non-critical error messages
+* Added filter on barograph signal for height gain calculation
+* Changed time array: 24 h added to time when 00:00 UTC crossed
+
+
+SCORE 0.3.9  06/07/2003
+-----------
+* Added command line option "-nh" to switch off the header info check
+  In that case, the FR s/n is written instead of the pilot name to output
+* Added check on different models of EW loggers to determine
+  the particular 3 digit s/n format
+* Added extended airfield information and determine airfield of departure
+  from the coordinates of the take-off position
+
+
+SCORE 0.3.8  04/07/2003
+-----------
+* Changed check on minimum distance between task points to turn points only
+
+
+SCORE 0.3.7  03/07/2003
+-----------
+* Solved bug in map/text output of free flight legs when engine restart
+* Solved bug in reconstruction of IGC file name from data
+
+      
+SCORE 0.3.6  02/07/2003
+-----------
+* Changed maximum logger interval from 10 s to 12 s (find_release)
+* Improved free flight post-optimization for speed (optimize_distance)
+
+
+SCORE 0.3.5  08/06/2003
+-----------
+* Corrected bug in global.c (wrong number for MaxFFtpt)
+
+
+SCORE 0.3.4  15/05/2003
+-----------  
+* Dutch output via .txt file (if -DDUTCH given in Makefile)
+* Several small improvements of map plots
+* Solved bugs in start_flight.c and statistics.c 
+
+
+SCORE 0.3.3  07/05/2003
+----------- 
+* Added SCOREDIR environment variable
+
+
+SCORE 0.3.2  06/05/2003
+-----------
+* Added text output of logger type and s/n (converted from A record)
+
+
+SCORE 0.3.1  05/05/2003
+-----------
+* Added detection of low fix accuracy in find_release()
+  to avoid large errors when time interval is small
+* Added removal of identical turnpoints in free flight optimization
+* Added distance scale to map plot
+* Added deallocation of dynamic arrays
+
+
+SCORE 0.2.5  30/04/2003
+-----------
+* Extra check in find_release() to determine earliest detected point of release
+
+
+SCORE 0.2.4  25/04/2003
+-----------
+* Added plotting of airfields to map 
+
+
+SCORE 0.2.3  12/04/2003
+-----------
+* Added loop to find best free flight in soaring blocks
+
+
+SCORE 0.2.2  11/04/2003
+-----------
+* Added country borders to map plot
+* Added filter to remove false GPS fixes
+* Added WGS84 ellipsoid distance calculation
+
+
+SCORE 0.2.1  09/04/2003
+-----------
+* Integration of algorithms developed for 'SOAR' and 'Beker DAC'
+* First fully functional version
+
+
+SCORE 0.1.1  24/02/2003 
+-----------
+* Ground work data structure and reading of IGC file

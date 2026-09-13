@@ -1,0 +1,76 @@
+Score2.exe v. 24.02
+#Code	Description	Critical
+# General errors
+  0	Geen fouten	
+  1	Onbepaalde fatale fout	critical
+  2	Geen programma input gegeven	critical
+  3	Ongeldige programma optie: 	critical
+  4	Parameter buiten limiet	critical
+  5	Geheugen allocatie fout: 	critical
+  6	Fout code niet gedefinieerd: 	critical
+  7	Mutex timeout	
+# Command line parameter errors
+100	Geen IGC file naam gegeven	critical
+101	IGC file naam te kort	critical
+102	IGC file naam te lang	critical
+103	SCOREDIR + IGC file naam te lang	critical
+104	Plot-gebied definitie onvolledig	
+105	Plot-gebied definitie ongeldig	
+# File IO errors
+110	Kan IGC file niet openen	critical
+111	IGC file security niet OK	
+112	Lijn in IGC file te lang: 	critical
+113	Kan vliegveld bestand niet openen	critical
+114	Vliegveld bestand leeg	critical
+115	Fout lezen vliegveld bestand	critical
+# Logger errors
+120	Logger type niet bekend: 	
+121	GPS datum verschilt van WGS84	critical
+122	Te weinig punten in IGC file	critical
+123	Geen ontkoppelpunt gevonden	critical
+124	Logger interval groter dan limiet van 	
+125	Geen ENL signaal in IGC file	critical
+126	Geen enkele geldige 3D GPS fix	critical
+127	Geen ENL signaal, scoring geforceerd	
+128	GPS datum format niet standaard	
+129	Ongeldig karakter of lijn lengte in IGC file	critical
+# Declaration errors
+130	Naam piloot niet gedeclareerd	critical
+131	Zweefvliegtuig type niet gedeclareerd	critical
+132	Immatriculatie niet gedeclareerd	critical
+133	Declaratie onvolledig (gecheckt)	
+134	Declaratie lijn op ongeldige plaats	
+# Engine errors
+140	Geen motor testloop gemaakt	critical
+141	Ongeldige ENL parameters	critical
+142	Geen MOP detectie	critical
+# Flight recording errors
+150	Te korte vlucht, minder dan 20 fixes	critical
+151	Geen GPS signaal na take-off	critical
+152	Geen vlucht gevonden	critical
+153	Geen soaring blok gevonden	
+154	Soaring blok te kort	
+155	Aantal loggerpunten gereduceerd	
+# Output errors
+190	Kan data output file niet openen	critical
+191	Kan tekst output file niet openen	critical
+192	SCOREDIR variabele niet gedefinieerd	critical
+193	Kan barogram output file niet openen	critical
+194	Fout in plot file 	
+195	Fout plotten file 	
+200	Driehoek: geen gesloten segment gevonden	
+# Task messages
+300	Geen declaratie van opgegeven proef	
+301	Geldige opgegeven proef declaratie	
+311	Beercan fotosectoren gebruikt.	
+302	Ongeldige opgegeven proef declaratie	
+303	Meer keerpunten in declaratie dan toegelaten	
+304	Nul of te veel keerpunten volgens regels	
+305	Onderlinge afstand tussen keerpunten kleiner dan minimum	
+306	Te kort been: start punt gecorrigeerd	
+307	Te kort been: finish punt gecorrigeerd	
+308	Afstand opgegeven proef kleiner dan minimum	
+309	Totale afstand opgave buiten limieten	
+310	Waarschuwing: opgegeven proef declaratie inconsistent	
+312	Declaratie na begin van vlucht	
+313	Geen vliegtuig registratie record in de logger header	

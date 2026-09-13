@@ -1,0 +1,89 @@
+#
+# Makefile for a C++ program
+#
+#
+#********************************************************************
+# Specify below the absolute PATH to reach your project directory
+#********************************************************************
+#
+#PROJ_DIR  = $(HOME)/LinkLinux/charron
+PROJ_DIR  = /home/score-versions/score24.03/Files
+BUILDNAME = SCORE
+#
+#********************************************************************
+# Directory for the executable and sources
+#********************************************************************
+#
+SRC  = $(PROJ_DIR)/src
+EXEC = $(PROJ_DIR)
+#
+#
+COMPC = g++
+#COMPF = g++
+LINK  = g++
+#
+# Compiler flags
+CFLAGS = -O3 -ansi -TP  # Add -DDUTCH for selecting Dutch language output
+#FFLAGS = -O3
+#
+# Link editor libs.
+LDFLAGS = -L$(HOME)/dislin -ldislin -lm -lc -lgd
+#
+all : project
+#
+OBJECTS = \
+          $(SRC)/Global.o \
+          $(SRC)/Airfields.o \
+          $(SRC)/Brussel.o \
+          $(SRC)/Charron_score.o \
+          $(SRC)/Engine.o \
+          $(SRC)/FastTrack.o \
+          $(SRC)/Flight.o \
+          $(SRC)/FlightBase.o \
+          $(SRC)/ffArray.o \
+          $(SRC)/FreeFlight.o \
+          $(SRC)/IGC.o \
+          $(SRC)/Linux.o \
+          $(SRC)/Logger.o \
+          $(SRC)/Messages.o \
+          $(SRC)/Mutex.o \
+          $(SRC)/Release.o \
+          $(SRC)/SoarBlock.o \
+          $(SRC)/Task.o \
+          $(SRC)/Trace.o \
+          $(SRC)/Triangle.o \
+          $(SRC)/Win32.o \
+          $(SRC)/WriteDat.o \
+          $(SRC)/WriteText.o \
+          $(SRC)/cDislin.o \
+          $(SRC)/Region.o \
+          $(SRC)/Runs.o \
+          $(SRC)/PlotFile.o \
+          $(SRC)/PlotFlight.o\
+          $(SRC)/Baro.o
+
+
+###############################################################################
+# Dependencies on include files
+##############################################################################
+$(OBJECTS) : $(SRC)/Linux.h $(SRC)/Global.h $(SRC)/FlightBase.h 
+
+
+##############################################################################
+.c.o : $(COMPC) $(CFLAGS) -c $< -o $@
+#.f.o : $(COMPF) $(FFLAGS) -c $< -o $@
+##############################################################################
+project : printmsg $(OBJECTS)
+	@echo Linking with flags : $(LDFLAGS)
+	cd $(SRC)
+	@$(LINK) -o $(EXEC)/$(BUILDNAME) $(PROFIL) $(OBJECTS) $(LDFLAGS)
+	@echo project built, good luck.
+	@echo ' '
+##############################################################################
+printmsg :
+	@echo
+	@echo Building project on host $(HOST)
+##############################################################################
+clean :
+	@echo Removing object files
+	rm -f $(OBJECTS)

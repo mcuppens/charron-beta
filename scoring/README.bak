@@ -1,0 +1,335 @@
+######################################################
+## CHARRON ONLINE SOARING CONTEST SCORING
+## Developed for the Liga Van Vlaamse zweefvliegclubs
+##
+## SCORE -- version 20.01 -- 29/07/2020
+##
+## Author Luc Beerts (info@lbs.be) 
+## Copyright(c) 2003-2020 Luc Beerts
+######################################################
+
+
+**************************************************************************
+1. Introduction
+
+SCORE is a program to evaluate soaring flight performance recorded by
+an FAI approved flight recorder (IGC file).
+The source code is ANSI C. SCORE is linked with the standard C and math
+libraries and with the plotting library DISLIN to create a PNG image of 
+the flight path and the GD library to create a PNG image of the barogram.
+Linux distributions of DISLIN are available freely from www.dislin.de, 
+the source code of GD can be found here: www.boutell.com/gd/
+
+Input:  IGC file and command line options
+Output: data file (.dat), text file (.txt) and PNG plots (.png)
+        The path of these files is given by the IGC file.
+
+
+
+**************************************************************************
+2. Usage
+
+SCORE reads the input file name and options from the command line.
+
+SCORE [options] <file name>
+
+  <file name> is the IGC file to read (supposed to end in .igc or .IGC)
+
+  Options:
+  -c <finesse>  : the "finesse" (L/D) of the glider (real number)
+  -fixm:<xxx>   : limits the number of fixes in any soaring block to the given
+                  number, with a minimum of 15000
+  -nd           : do not check task declaration
+  -nff          : do not perform free flight scoring
+  -nft          : do not perform FastTrack scoring
+  -ndt          : do not perform declared task scoring
+  -ndtime       : do not check task declaration time
+  -ntri         : Do not perform triangle scoring
+  -nruns        : Do not perform runs scoring (stretches)
+  -tricdX.x     : Checks for closed loop, max distance between fixes = X.x (km).
+                  X.x = 0: disable closed loop checking
+                  Parameter not included: enable close loop, using dist = 1 km.
+  -tribf        : Use brute force triangle algorithm, to compare with optimised
+  -tribfssXX    : Use brute force triangle algorithm, set step size at XX seconds
+  -tribfmnsXX   : Use brute force triangle algorithm, limit number of steps to XX
+                  has priority over tribfss
+  -nbru         : Do not perform Charronde scoring
+  -gid          : do not treat missing of GID record as critical error
+  -e            : glider with engine (switches on the engine run check)
+  -ea           : Automatic engine detection (as -e, but no error if no ENL)
+  -noenl        : Allow analysis of a file without enl registration
+  -moponly      : Analyse only files with MOP detection
+  -nomop        : Do not use mop detection
+  +nt           : require a testrun
+  -etmin<xxx>   : use the specified value as minimum for ENL threshold
+                  (no space)
+				  The default value is 400
+  -etmax<xxx>   : use the specified value as maximum for ENL threshold
+                  (no space)
+				  The default value is 500
+  -et<xxx>      : use the specified value as ENL threshold (no space)
+  -st hh:mm:ss hh:mm:ss   :
+                  Analyse only the block between the given times
+                  Engine detection is disabled,
+                  Landing detection is disabled.
+				  Start soaring (release) is set at the start time
+                  The blanks must be inserted!
+  -nknicks<xx>  : Set the base number of knicks for free flight analysis
+                  Reducing the value will decrease processing time, but
+                  will also decrease the quality of the result.
+                  Current default value: 18.
+                  Minimum value: 14
+                  Maximum value: 30
+				  The actual number of knicks is about 3x higher as the number given
+  -ddmld<xx>    : Free flight minimum leg distance (0->50)
+  -dtmld<xx>    : Declared task minimum leg distance (0->50)
+  -d            : write debugging messages to stdout
+  -digc         : provide debug info for igc validity checking and input
+  -dflt         : provide debug info for flight detection algorithm
+  -drel         : provide debug info for release detection algorithm
+  -deng         : provide debug info for engine detection algorithm
+  -dalt         : provide debug info for altitude & altitude gain algorithm 
+  -dff          : provide debug info for free flight scoring algorithm
+  -ddt          : provide debug info for declared task scoring algorithm
+  -dtri         : Provide debug info for triangle algorithm
+  -dbru         : Provide debug info for Charronde algorithm
+  -druns        : Provide debug info for runs algorithm
+  -ddl          : provide debug info for dislin picture generation functions
+  -dplot:       : provide debug info for the plots
+  -df           : Pipe debug info to specified file. Must be used in
+                  combination with another debug parameter (eg -d or -drel)
+  -dtimeXX      : Add an execution time of XX seconds, in order to test server
+                  behavior in case of long execution times.
+  -dttotXX      : Set the execution time to a minimum of the given time XX (seconds).
+                  If the execution time is shortre, a waiting time is added
+				  to obtain the minimum time.
+  -rm<hh:mm:ss> : (no space) Set release point manually at the fix at or
+                  just after the given time.
+  -ec<:filename>: write list of error codes to file "filename", then stops.
+                  If no file name given: writes to stdout.
+  -plot:rgn:name: Will produce combined plots with the given name for the given region
+                  Multiple instances of -plot commands are allowed
+                  > Name: Name of the plot file
+				          if containing blanks:can use quotes or underscores:
+                            -plot:rgn:"Peeters Jan"
+                            -plot:rgn:Peeters_Jan
+                  > Regions:
+                       BNL
+                       FRA
+                       EUR
+                       MOR:    Morocco
+                       SAF:    S Africa
+                       USA
+                       AUS:    Australia & N Zealand
+  -latmax<xx.x> : Specify the top latitiude for the plot
+  -latmin<xx.x> : latmax, latmin, lonmax and lonmin must aal be given
+  -lonmax<xx.x> : Specify the right longitiude for the plot
+  -lonmin<xx.x> : Use degrees.decimal degrees
+  -nograph      : Suppresses generation of graphs
+  -pause        : request a key press to close the console after execution
+
+Comment out command line parameters via # after the '-' character.
+Example: -#plot:xx:xx -> the command is commented out
+  
+To run the SCORE program on the example IGC file in the distribution:
+   
+  SCORE -c 47 -e example.igc
+  
+
+
+**************************************************************************
+3. Dat file contents
+   The dat file contains a series of alfa numerical data, in text format.
+   Fields marked with * are new as compared to the previous release
+   The data are the following:
+   - Version (name) of the scoring algorithm used
+   - Unique IGC name, construicted from the logger header.
+     If file could not be read or in case of some other errors this field will
+     contain the input file name.
+   - Critical errors (code + description).
+     In case of critical error, the next lines are not included.
+   - Number of non-critical errors
+     - If errors: list of non critical error codes + descriptions
+   - Number of messages
+     - If messages: list of message codes + descriptions
+   - Logger declaration data:
+     - Declaration date
+     - Logger code and ID
+     - Pilot name
+     - Glider type
+     - Glider registration
+     - Competition class
+   - Take off time
+   - Landing time
+   - Release time
+   - Release altitude
+   - Flight time
+   - Soaring time
+   - Altitude gain
+   - Declared task data
+     - Declared distance
+     - Number of turnpoints ( incl take off & ldg )
+     - Task finished ?
+     - Distance flown
+     - Start altitude
+     - Altitude at start line crossing
+     - Height loss
+     - Score distance
+     - Average speed
+   - Free flight data
+     - Total distance
+     - Number of turnpoints
+     - Height loss
+     - Score distance
+     - Average speed
+   - Best speed track data
+     - Best speed
+   - Benelux / Take off airfield code
+   - Take-off latitude
+   - Take-off longitude
+   - Landing latitude
+   - Landing longitude
+   - Distance take-off to landing point
+   - Charronde angle.  Can be negative, can be > 360.
+   - Triangle data
+     - Leg distances (3 lines)
+	 - Total distance
+	 - Brite force distance. For debugging, will be removed in final version.
+   - Up to 10 strings containing debugging info
+
+
+**************************************************************************
+4. Error codes
+   See separate file error_codes.txt.
+   The error codes file can be genereated via the -ec[:filename] comand switch.
+   
+
+**************************************************************************
+5. Mutexing principles / problems
+   Different instances of score, running the same day, will access the same
+   files day_yyyymmdd and day_yyyymmdd.png.  This can lead to file corruption
+   or execution problems if no precautions are taken.
+   Solution: interprocess mutexing.
+   The interprocess mutexing is performed via a locked file, generated by the
+   first-come process.  The next process will be unable to generate the same
+   file, and enter a wait state.  When the first process, it will delete the
+   file, the next process will then be able to create the file itself, and
+   proceed.
+   If the second process is not able to grab the mutex after 10 seconds, an
+   error condition is presumed.  This may occur when the first process exits
+   abnormally before it was able to release the mutex.
+   In this case, the second process will continue anyhow, and it will try to
+   delete the mutex file itself.
+   Due to access rights in Linux, this may not be possible.
+   *****************************************************************************
+   * IF THE EXECUTION OF THE ALGORITHM BECOMES VERY SLOW:                      *
+   * It is possible that the mutex file was not deleted by the first process,  *
+   * and that the next processes are unable to delete it, due to access rights.*
+   * In this case, locate the file Mutex_day_yyyymmdd in the score directory,  *
+   * and remove it manually.                                                   *
+   *****************************************************************************
+
+   
+**************************************************************************
+6. Installation of DISLIN
+a) Download the appropriate tar.gz distribution here:
+   http://www.mps.mpg.de/dislin/linux
+b) DISLIN can be installed in a local directory, e.g. $HOME/dislin
+c) Define the environment variable DISLIN in the shell startup file, 
+   e.g. in $HOME/.cshrc
+   setenv DISLIN $home/dislin
+d) Follow the installation instructions in the DISLIN README file.
+e) Check if the file gshhs_h.b or gshhs_l.h is installed in
+   ~/dislin/map.  If not download & install it manually.
+
+
+**************************************************************************
+7. Installation of ZLIB (if zlib is not installed)
+a) create a directory $HOME/zlib
+b) Download the latest version from http://www.zlib.net/,
+c) Copy the package into the folder
+d) Unpack archive:  tar -xvf zlibxxx.tar.gz
+e) cd to the created directory
+f) type: ./configure
+g) type: make
+h) type: sudo make install
+i) optionally: make clean
+
+
+**************************************************************************
+8. Installation of LIBPNG (if libpng is not installed)
+a) Make sure zlib is installed. If not, see above.
+b) create a directory $HOME/libpng
+c) Download the latest version from the libpng website
+d) Copy the package into the folder libpng
+e) Unpack archive:  tar -xvf libpngxxx.tar.gz
+f) cd to the just created libpng folder
+g) type: ./configure
+h) type: make
+i) type: sudo make install
+j) optionally: make clean
+
+
+**************************************************************************
+9. Installation of GD
+a) Make sure libpng is installed
+   To check use "sudo find / -name libpng*"
+   If not, see above.
+b) create a directory (eg) $HOME/libgd
+c) Download the latest tar.gz distribution of the source here:
+   http://www.libgd.org/Main_Page
+d) Copy the package into the folder libgd
+e) Unpack archive:  tar -xvf libgdxxx.tar.gz
+f) cd to the just created libpng folder
+g) Type: ./configure --with-png
+h) Type: make
+i) Type: sudo make install
+j) optionally: make clean
+
+
+**************************************************************************
+10. Installation of SCORE
+
+a) Uncompress the tar.gz distribution
+
+   gunzip score-0.5.3.tar.gz
+   
+b) Restore source files from the tar file
+
+   tar xvf score-0.5.3.tar 
+   
+c) Change to the installation directory of SCORE
+
+   cd score-0.5.3
+   
+d) If the installation directory is different from $home/score-0.5.3,
+   edit the Makefile and change the variable PROJ_DIR accordingly
+   
+e) Compile and link SCORE with the command
+
+   make
+   
+f) Copy the executable SCORE and the files "airfields_*.dat" from 
+   the current directory to the execution directory, e.g. $home/bin
+   
+g) Include the execution directory in the PATH (if it was not already).
+   For the C shell for example, edit $home/.cshrc and add the line
+   
+   setenv PATH $PATH:$home/bin
+   
+   Update the path hash table (C shell) with the command
+   
+   rehash
+
+h) Set the environment variable SCOREDIR to the execution directory
+   
+   setenv SCOREDIR $home/bin
+   
+   This can be set in the same shell configuration file, e.g. $home/.cshrc
+   for the C shell.
+   
+   Alternatively, the SCOREDIR variable can be passed directly to the program
+   each time it is started using the command "env":
+   
+   env SCOREDIR=$home/bin SCORE -c 42 37kf1cn1.igc
+   
